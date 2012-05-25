@@ -176,4 +176,12 @@ describe Capistrano::Chef do
     end
   end
 
+  specify 'configure authentication' do
+    opts = { node_name: 'nodename', 
+             client_key: '/path/to/key.pem', 
+             search_url: 'http://example.com' }
+    Chef::Config.should_receive(:merge!).with(opts)
+    @configuration.set_authentication(opts)
+  end
+
 end
