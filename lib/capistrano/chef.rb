@@ -61,16 +61,18 @@ module Capistrano::Chef
         end
       end
 
-      def list_servers(query)
-        migrator = Chef::Search::Query.new.search(:node, query).first.sort {|a,b| a['roles'] <=> b['roles'] }.each{ |node|
+      def list_servers(query, options={})
+        attribute = options.delete(:attribute)
+        migrator = Chef::Search::Query.new.search(:node, query, attribute).first.sort {|a,b| a['roles'] <=> b['roles'] }.each{ |node|
           next unless node['cloud']
-          printf("%-25s %-25s %-30s\n", node['cloud']['public_ips'], node['cloud']['local_hostname'], node['roles'])
+          printf("%-25s %-30s %-30s\n", node['cloud']['public_ips'], node[attribute], node['roles'])
         }
       end
 
       def migrator_role(query, options={})
-        migrator = Chef::Search::Query.new.search(:node, query).first.map{ |node|
-          node['cloud']['public_ips']
+        attribute = options.delete(:attribute)
+        migrator = Chef::Search::Query.new.search(:node, query, attribute).first.map{ |node|
+          node[attribute]
         }.flatten.first
         role :db, migrator, { primary: true }.merge(options) 
       end
